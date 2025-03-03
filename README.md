@@ -7,8 +7,8 @@
 
 ## 项目结构
 
-- . - 前端 UI 实现
-- core - 核心实现
-- proto
-  - src - Protobuf 文件
-  - proto_lib - 根据 Protobuf 生成的库
+- / - 前端 UI 实现
+- core/ - 核心实现
+- proto/
+  - src/ - Protobuf 文件
+  - proto_lib/ - 根据 Protobuf 生成的库
