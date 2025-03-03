@@ -1,4 +1,8 @@
+import 'package:core/multicast/discover.dart';
+import 'package:core/multicast/register.dart';
+import 'package:core/utils/generator.dart';
 import 'package:flutter/material.dart';
+import 'package:nsd/nsd.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,6 +14,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    doCast();
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -32,6 +37,21 @@ class MyApp extends StatelessWidget {
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
+  }
+
+  doCast() async {
+    final Discover discover = Discover();
+    final Register register = Register();
+
+    await register.register(
+        Generator.generateServiceID('abcd'),
+        Generator.generateServiceTXTData('Ami\'s PC Test', 3),
+        11451,
+    );
+    await discover.start();
+    await discover.addListener((Discovery discovery) {
+      print(discovery);
+    });
   }
 }
 

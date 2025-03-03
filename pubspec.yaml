@@ -31,8 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+  core:
+    path: ./core
   proto_lib:
     path: ./proto/proto_lib
+
+  nsd: ^4.0.3
 
 dev_dependencies:
   flutter_test:

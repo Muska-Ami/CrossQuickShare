@@ -1,0 +1,21 @@
+name: core
+description: Cross Quick Share core.
+version: 1.0.0
+publish_to: none
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.7.0
+
+# Add regular dependencies here.
+  # path: ^1.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  nsd: ^4.0.3
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0

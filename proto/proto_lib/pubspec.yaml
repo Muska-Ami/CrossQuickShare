@@ -1,6 +1,7 @@
 name: proto_lib
-description: A sample command-line application.
+description: Quick Share proto libraries.
 version: 1.0.0
+publish_to: none
 # repository: https://github.com/my_org/my_repo
 
 environment:
