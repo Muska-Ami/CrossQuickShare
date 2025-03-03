@@ -37,6 +37,9 @@ dependencies:
     path: ./proto/proto_lib
 
   nsd: ^4.0.3
+  get: ^4.7.2
+  shared_preferences: ^2.5.2
+  dynamic_color: ^1.7.0
 
 dev_dependencies:
   flutter_test:

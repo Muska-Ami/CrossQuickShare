@@ -1,16 +1,14 @@
-# cross_quick_share
+# Cross Quick Share
 
-A new Flutter project.
+一个基于 Dart 的 Android Quick Share 实现，旨在为非 Android / Windows 设备提供 Quick Share。
 
-## Getting Started
+> [!NOTE]
+> 此项目仍在开发中，若您有兴趣参与，欢迎提交 PR。
 
-This project is a starting point for a Flutter application.
+## 项目结构
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- . - 前端 UI 实现
+- core - 核心实现
+- proto
+  - src - Protobuf 文件
+  - proto_lib - 根据 Protobuf 生成的库
