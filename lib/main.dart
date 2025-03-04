@@ -1,17 +1,27 @@
+import 'package:core/utils/generator.dart';
 import 'package:cross_quick_share/pages/home.dart';
 import 'package:cross_quick_share/pages/settings.dart';
+import 'package:cross_quick_share/run.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nsd/nsd.dart';
 
-void main() {
+final service = Run();
+Registration? registration;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final r4str = Generator.generateRandomString(4);
+  registration = await service.startCast(r4str);
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
@@ -47,19 +57,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
-  // doCast() async {
-  //   final Discover discover = Discover();
-  //   final Register register = Register();
-  //
-  //   await register.register(
-  //       Generator.generateServiceID('abcd'),
-  //       Generator.generateServiceTXTData('Ami\'s PC Test', 3),
-  //       11451,
-  //   );
-  //   await discover.start();
-  //   await discover.addListener((Discovery discovery) {
-  //     print(discovery);
-  //   });
-  // }
 }

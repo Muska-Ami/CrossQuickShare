@@ -1,7 +1,10 @@
+import 'package:cross_quick_share/storages/settings_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:cross_quick_share/widgets/custom_app_bar.dart';
+
+final SettingsPrefs _settings = SettingsPrefs();
 
 class SettingsUI extends StatelessWidget {
   SettingsUI({super.key});
@@ -10,6 +13,7 @@ class SettingsUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _ctx.load();
     return Scaffold(
       appBar: CustomAppBar.widget(settings: false),
       body: Container(
@@ -94,8 +98,13 @@ class SettingsUI extends StatelessWidget {
 }
 
 class _SettingsCtx extends GetxController {
-  var deviceName = 'Test'.obs;
-  var fileSavePath = 'C:/114514'.obs;
+  var deviceName = ''.obs;
+  var fileSavePath = ''.obs;
 
   var autostart = false.obs;
+
+  void load() async {
+    deviceName.value = await _settings.getDeviceName() ?? '';
+    fileSavePath.value = await _settings.getSavePath() ?? '';
+  }
 }

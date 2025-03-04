@@ -6,12 +6,14 @@ class CustomAppBar {
     return AppBar(
       title: Text('Cross Quick Share'),
       actions: [
-        settings ? IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: () {
-            Get.toNamed('/settings');
-          },
-        ) : Container(),
+        settings
+            ? IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                Get.toNamed('/settings');
+              },
+            )
+            : Container(),
       ],
     );
   }

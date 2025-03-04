@@ -3,9 +3,28 @@ import 'dart:math';
 import 'dart:typed_data';
 
 class Generator {
+  static String generateRandomString(int length) {
+    final random = Random();
+    const availableChars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz'
+        '1234567890';
+    final randomString =
+        List.generate(
+          length,
+          (index) => availableChars[random.nextInt(availableChars.length)],
+        ).join();
+
+    return randomString;
+  }
+
   /// 生成服务标识
   /// @param randomStr4L 4位随机字符串
   static String generateServiceID(String randomStr4L) {
+    if (randomStr4L.length != 4) {
+      throw ArgumentError(
+        'Random string length must be 4, but got ${randomStr4L.length}',
+      );
+    }
     // Define the byte sequence
     List<int> byteSequence = [
       0x23, // 1 byte
