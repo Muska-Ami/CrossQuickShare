@@ -17,6 +17,13 @@ class Generator {
     return randomString;
   }
 
+  static List<int> generateRandomBytes(int length) {
+    final random = Random.secure();
+    List<int> bytes = List<int>.generate(length, (_) => random.nextInt(256));
+
+    return bytes;
+  }
+
   /// 生成服务标识
   /// @param randomStr4L 4位随机字符串
   static String generateServiceID(String randomStr4L) {
@@ -71,4 +78,5 @@ class Generator {
 
     return base64Url.encode(byteArray);
   }
+
 }

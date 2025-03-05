@@ -14,7 +14,14 @@ dependencies:
   flutter:
     sdk: flutter
 
+  proto_lib:
+    path: ../proto/proto_lib
+
   nsd: ^4.0.3
+  crypto: ^3.0.6
+  uuid: ^4.5.1
+  ecdsa: ^0.1.2
+  elliptic: ^0.3.11
 
 dev_dependencies:
   lints: ^5.0.0
