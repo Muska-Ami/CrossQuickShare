@@ -1,2 +1,8 @@
-A sample command-line application with an entrypoint in `bin/`, library code
-in `lib/`, and example unit test in `test/`.
+# core
+
+Core library, include:
+
+- Service announcement
+- Service discovery
+- Key exchange
+- Data transfer implementation
