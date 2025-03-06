@@ -2,23 +2,22 @@ import 'package:proto_lib/ukey.pb.dart';
 import 'dart:typed_data';
 
 class DataDeserialize {
+  /// 反序列化消息体
+  static Ukey2Message? deserializeMessage(Uint8List byteBuffer) {
+    final bytes = byteBuffer.sublist(4);
+    try {
+      return Ukey2Message.fromBuffer(bytes);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   /// 反序列化 ClientInit 消息
   static Ukey2ClientInitResult deserializeClientInit(Uint8List byteBuffer) {
-    Ukey2Message ukey2message;
-    try {
-      ukey2message = Ukey2Message.fromBuffer(byteBuffer);
-    } catch (e) {
-      final alert = Ukey2Alert(type: Ukey2Alert_AlertType.BAD_MESSAGE);
-      return Ukey2ClientInitResult(alert: alert);
-    }
-    if (ukey2message.messageType != Ukey2Message_Type.CLIENT_INIT) {
-      final alert = Ukey2Alert(type: Ukey2Alert_AlertType.BAD_MESSAGE_TYPE);
-      return Ukey2ClientInitResult(alert: alert);
-    }
-
     Ukey2ClientInit clientInit;
     try {
-      clientInit = Ukey2ClientInit.fromBuffer(ukey2message.messageData);
+      clientInit = Ukey2ClientInit.fromBuffer(byteBuffer);
     } catch (e) {
       final alert = Ukey2Alert(type: Ukey2Alert_AlertType.BAD_MESSAGE_DATA);
       return Ukey2ClientInitResult(alert: alert);
@@ -55,19 +54,7 @@ class DataDeserialize {
   static Ukey2ClientFinishedResult deserializeClientFinished(
     Uint8List byteBuffer,
   ) {
-    Ukey2Message ukey2message;
-    try {
-      ukey2message = Ukey2Message.fromBuffer(byteBuffer);
-    } catch (e) {
-      return Ukey2ClientFinishedResult(error: true);
-    }
-    if (ukey2message.messageType != Ukey2Message_Type.CLIENT_FINISH) {
-      return Ukey2ClientFinishedResult(error: true);
-    }
-
-    final clientFinished = Ukey2ClientFinished.fromBuffer(
-      ukey2message.messageData,
-    );
+    final clientFinished = Ukey2ClientFinished.fromBuffer(byteBuffer);
 
     return Ukey2ClientFinishedResult(clientFinished: clientFinished);
   }

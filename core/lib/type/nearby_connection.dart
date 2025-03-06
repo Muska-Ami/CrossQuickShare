@@ -38,6 +38,7 @@ class NearbyConnection {
   }
 
   void startListen() => connection.socket.listen((Uint8List data) {
+    print('Current state: ${state?.name ?? 'No state'}');
     switch (state) {
       case null:
       case ConnectionState.sentUkeyServerInit:
@@ -49,8 +50,24 @@ class NearbyConnection {
     }
   });
 
-  Future<void> sendFrame(data) async {
-    connection.socket.write(data);
+  Future<void> sendFrame(Uint8List data) async {
+    if (connection.closed) return;
+    int length = data.length;
+    final lengthPrefixedData = BytesBuilder();
+
+    lengthPrefixedData.add([
+      (length >> 24) & 0xFF,
+      (length >> 16) & 0xFF,
+      (length >> 8) & 0xFF,
+      length & 0xFF,
+    ]);
+
+    lengthPrefixedData.add(data);
+
+    print('Send frame to client: ${lengthPrefixedData.toBytes()}');
+
+    connection.socket.write(lengthPrefixedData.toBytes());
+    connection.socket.flush();
   }
 }
 
@@ -75,10 +92,7 @@ class SocketConnection {
 }
 
 class Ukey2Data {
-  Ukey2Data({
-    required this.publicKey,
-    required this.privateKey,
-  });
+  Ukey2Data({required this.publicKey, required this.privateKey});
 
   Uint8List publicKey;
   Uint8List privateKey;

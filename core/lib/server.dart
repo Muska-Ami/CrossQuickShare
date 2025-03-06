@@ -28,13 +28,16 @@ class Server {
   }
 
   void _onData(Socket client) async {
-    print('Received data, client: ${client.remoteAddress.address}:${client.remotePort}');
+    print(
+      'Incoming client: ${client.remoteAddress.address}:${client.remotePort}',
+    );
     connection = NearbyConnection(
       id: uuid.v4(),
       connection: SocketConnection(socket: client),
       handleUkey2Connection: _handleUkey2Connection,
       handleConnection: _handleConnection,
     );
+    connection!.startListen();
   }
 
   void _handleUkey2Connection(ConnectionState? state, Uint8List data) async {
@@ -42,39 +45,8 @@ class Server {
 
     switch (state) {
       case null:
-        final clientInitParsed = DataDeserialize.deserializeClientInit(data);
-        if (clientInitParsed.alert != null) {
-          connection!.closeSocket(ukey2alert: clientInitParsed.alert);
-          return;
-        }
-        connection!.clientInit = clientInitParsed.clientInit;
-        final ec = getP256();
-        final privateKey = ec.generatePrivateKey();
-        final publicKey = privateKey.publicKey;
-
-        connection!.ukey2data = Ukey2Data(
-          publicKey: Crypto.hexToBytes('0x$publicKey'),
-          privateKey: Crypto.hexToBytes('0x$privateKey'),
-        );
-
-        final serverInit = Ukey2ServerInit(
-          version: 1,
-          random: Generator.generateRandomBytes(32),
-          publicKey: connection!.ukey2data!.publicKey,
-          handshakeCipher: Ukey2HandshakeCipher.P256_SHA512,
-        );
-        connection!.serverInit = serverInit;
-        connection!.sendFrame(serverInit);
-        connection!.state = ConnectionState.sentUkeyServerInit;
-        break;
       case ConnectionState.sentUkeyServerInit:
-        final clientFinishedParsed = DataDeserialize.deserializeClientFinished(
-          data,
-        );
-        if (clientFinishedParsed.error) {
-          connection!.closeSocket();
-          return;
-        }
+        await _handleUkey2handshake(state, data);
         break;
       default:
         throw UnimplementedError();
@@ -88,8 +60,7 @@ class Server {
       case ConnectionState.initial:
         _handleInitialData(data);
       case ConnectionState.receivedConnectionRequest:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _handleReceivedConnectionRequest(data);
       case ConnectionState.sentConnectionResponse:
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -115,6 +86,7 @@ class Server {
   /// 连接初始化
   void _handleInitialData(Uint8List data) {
     final frame = OfflineFrame.fromBuffer(data);
+    print('Offline frame: ${frame.toProto3Json()}');
     if (!(frame.v1.hasConnectionRequest() &&
         frame.v1.connectionRequest.hasEndpointInfo())) {
       throw UnimplementedError('Wrong connection request data.');
@@ -144,5 +116,90 @@ class Server {
     connection!.state = ConnectionState.receivedConnectionRequest;
   }
 
-  ///
+  /// 连接请求
+  void _handleReceivedConnectionRequest(Uint8List data) {
+    print('Connection establishing');
+  }
+
+  /// Ukey2 握手处理
+  Future<void> _handleUkey2handshake(
+    ConnectionState? state,
+    Uint8List data,
+  ) async {
+    final message = DataDeserialize.deserializeMessage(data);
+    if (message == null) {
+      // 无效消息
+      connection!.closeSocket();
+      return;
+    }
+    final Uint8List bytes = Uint8List.fromList(message.messageData);
+    switch (message.messageType) {
+      case Ukey2Message_Type.ALERT:
+
+        /// 警告
+        final alert = Ukey2Alert.fromBuffer(bytes);
+        print('Received an alert: ${alert.toProto3Json()}');
+        break;
+      case Ukey2Message_Type.CLIENT_FINISH:
+
+        /// Client Finished
+        // 状态不匹配，拒绝无效的消息
+        if (state != ConnectionState.sentUkeyServerInit) {
+          connection!.closeSocket();
+          return;
+        }
+        final clientFinishedParsed = DataDeserialize.deserializeClientFinished(
+          data,
+        );
+        if (clientFinishedParsed.error) {
+          connection!.closeSocket();
+          return;
+        }
+        print('Client finished.');
+        connection!.clientFinished = clientFinishedParsed.clientFinished;
+        connection!.state = ConnectionState.receivedUkeyClientFinish;
+        break;
+      case Ukey2Message_Type.CLIENT_INIT:
+
+        /// Client Init
+        final clientInitParsed = DataDeserialize.deserializeClientInit(bytes);
+        print(
+          'client init: ${clientInitParsed.clientInit?.toProto3Json()}, alert: ${clientInitParsed.alert?.toProto3Json()}',
+        );
+        if (clientInitParsed.alert != null) {
+          await connection!.sendFrame(clientInitParsed.alert!.writeToBuffer());
+          return;
+        }
+        connection!.clientInit = clientInitParsed.clientInit;
+        final ec = getP256();
+        final privateKey = ec.generatePrivateKey();
+        final publicKey = privateKey.publicKey;
+
+        connection!.ukey2data = Ukey2Data(
+          publicKey: Crypto.hexToBytes(publicKey.toHex()),
+          privateKey: Crypto.hexToBytes(privateKey.toHex()),
+        );
+
+        // 构造 Server Init 返回
+        final serverInit = Ukey2ServerInit(
+          version: 1,
+          random: Generator.generateRandomBytes(32),
+          publicKey: connection!.ukey2data!.publicKey,
+          handshakeCipher: Ukey2HandshakeCipher.P256_SHA512,
+        );
+        connection!.serverInit = serverInit;
+        print('Send server init: ${serverInit.toProto3Json()}');
+        final message = Ukey2Message(
+          messageType: Ukey2Message_Type.SERVER_INIT,
+          messageData: serverInit.writeToBuffer(),
+        );
+        await connection!.sendFrame(message.writeToBuffer());
+        connection!.state = ConnectionState.sentUkeyServerInit;
+        break;
+      default:
+        // 无效状态
+        connection!.closeSocket();
+        return;
+    }
+  }
 }
