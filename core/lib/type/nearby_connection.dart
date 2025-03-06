@@ -37,18 +37,27 @@ class NearbyConnection {
     connection.closed = true;
   }
 
-  void startListen() => connection.socket.listen((Uint8List data) {
-    print('Current state: ${state?.name ?? 'No state'}');
-    switch (state) {
-      case null:
-      case ConnectionState.sentUkeyServerInit:
-      case ConnectionState.receivedUkeyClientFinish:
-        handleUkey2Connection(state, data);
-        break;
-      default:
-        handleConnection(state!, data);
-    }
-  });
+  void startListen() => connection.socket.listen(
+    (Uint8List data) {
+      print('Current state: ${state?.name ?? 'No state'}');
+      switch (state) {
+        case null:
+        case ConnectionState.sentUkeyServerInit:
+        case ConnectionState.receivedUkeyClientFinish:
+          handleUkey2Connection(state, data);
+          break;
+        default:
+          handleConnection(state!, data);
+      }
+    },
+    onError: (e) {
+      print(e);
+      connection.closed = true;
+    },
+    onDone: () {
+      connection.closed = true;
+    },
+  );
 
   Future<void> sendFrame(Uint8List data) async {
     if (connection.closed) return;
