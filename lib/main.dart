@@ -1,3 +1,4 @@
+import 'package:bonsoir/bonsoir.dart';
 import 'package:core/utils/generator.dart';
 import 'package:cross_quick_share/pages/home.dart';
 import 'package:cross_quick_share/pages/settings.dart';
@@ -5,16 +6,15 @@ import 'package:cross_quick_share/run.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nsd/nsd.dart';
 
 final service = Run();
-Registration? registration;
+BonsoirBroadcast? registration;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final r4str = Generator.generateRandomString(4);
-  registration = await service.startCast(r4str);
+  registration = await service.startServer(r4str);
 
   runApp(const MyApp());
 }

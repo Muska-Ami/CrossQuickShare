@@ -5,12 +5,12 @@
 import FlutterMacOS
 import Foundation
 
+import bonsoir_darwin
 import dynamic_color
-import nsd_macos
 import shared_preferences_foundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  SwiftBonsoirPlugin.register(with: registry.registrar(forPlugin: "SwiftBonsoirPlugin"))
   DynamicColorPlugin.register(with: registry.registrar(forPlugin: "DynamicColorPlugin"))
-  NsdMacosPlugin.register(with: registry.registrar(forPlugin: "NsdMacosPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
 }
